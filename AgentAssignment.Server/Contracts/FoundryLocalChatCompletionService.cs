@@ -29,7 +29,11 @@ public sealed class FoundryLocalChatCompletionService : IChatCompletionService, 
     private IChatClient? _model;
     private string? _modelId;
 
-    public FoundryLocalChatCompletionService(string? alias = null) => _alias = alias ?? DefaultAlias;
+    public FoundryLocalChatCompletionService(string? alias = null)
+    {
+        Console.WriteLine("FoundryLocalChatCompletionService", alias);
+        _alias = alias ?? DefaultAlias;
+    }
 
     public bool IsReady => _model is not null;
 

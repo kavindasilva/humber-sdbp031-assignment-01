@@ -28,6 +28,19 @@ namespace AgentAssignment.Server
                 app.MapOpenApi();
             }
 
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    //
+                    var foundryService = app.Services.GetRequiredService<FoundryLocalChatCompletionService>();
+                    foundryService.EnsureStartedAsync();
+                }
+                catch (Exception ex)
+                {
+                    //
+                }
+            });
             //app.UseHttpsRedirection();
 
             app.UseAuthorization();
