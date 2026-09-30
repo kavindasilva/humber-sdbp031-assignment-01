@@ -28,19 +28,23 @@ namespace AgentAssignment.Server
                 app.MapOpenApi();
             }
 
+            var chatService = app.Services.GetRequiredService<IChatCompletionService>();
             _ = Task.Run(async () =>
             {
-                try
+                if (chatService is FoundryLocalChatCompletionService foundryService)
                 {
-                    //
-                    var foundryService = app.Services.GetRequiredService<FoundryLocalChatCompletionService>();
-                    foundryService.EnsureStartedAsync();
-                }
-                catch (Exception ex)
-                {
-                    //
+                    try
+                    {
+                        await foundryService.EnsureStartedAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(
+                            $"Foundry Local startup failed: {ex.Message}");
+                    }
                 }
             });
+
             //app.UseHttpsRedirection();
 
             app.UseAuthorization();
