@@ -39,8 +39,7 @@ namespace AgentAssignment.Server
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine(
-                            $"Foundry Local startup failed: {ex.Message}");
+                        Console.WriteLine($"Foundry Local startup failed: {ex.Message}");
                     }
                 }
             });

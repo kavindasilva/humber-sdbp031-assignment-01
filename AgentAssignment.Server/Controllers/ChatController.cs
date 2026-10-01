@@ -30,6 +30,11 @@ public class ChatController : ControllerBase
     [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
     public async Task<ActionResult<ChatCompletionResponse>> GetHealthStatus()
     {
-        return Ok();
+        if (!_chatService.IsReady)
+        {
+            return StatusCode(503, new { status = "starting" });
+        }
+
+        return Ok(new { status = "ready" });
     }
 }
