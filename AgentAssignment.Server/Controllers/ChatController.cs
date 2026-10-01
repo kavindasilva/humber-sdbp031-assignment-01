@@ -4,8 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace AgentAssignment.Server.Controllers;
 
 [ApiController]
-//[Route("/")]
-//[Route("/v1/chat/completions")]
 [Produces("application/json")]
 public class ChatController : ControllerBase
 {
@@ -23,12 +21,46 @@ public class ChatController : ControllerBase
     public async Task<ActionResult<ChatCompletionResponse>> CompleteAsync([FromBody] ChatCompletionRequest request, CancellationToken cancellationToken = default)
     {
         if (request.Messages is null || request.Messages.Count == 0)
-            return BadRequest();
+            return BadRequest(new ApiErrorResponse
+            (
+                new ApiErrorBody
+                (
+                    "Messages is null or empty",
+                    "400"
+                )
+            ));
 
         else if (!_chatService.IsReady)
-            return StatusCode(StatusCodes.Status503ServiceUnavailable, new { status = "starting" });
+            return StatusCode(
+                StatusCodes.Status503ServiceUnavailable,
+                new ApiErrorResponse
+                (
+                    new ApiErrorBody
+                    (
+                        "Messages is null or empty",
+                        "503"
+                    )
+                )
+            );
 
-        return Ok();
+        try
+        {
+            var response = await _chatService.CompleteAsync(request, cancellationToken);
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                new ApiErrorResponse
+                (
+                    new ApiErrorBody
+                    (
+                        "Error occured",
+                        "500"
+                    )
+                )
+            );
+        }
     }
 
     [HttpGet("/health")]
@@ -38,7 +70,16 @@ public class ChatController : ControllerBase
     {
         if (!_chatService.IsReady)
         {
-            return StatusCode(StatusCodes.Status503ServiceUnavailable, new { status = "starting" });
+            return StatusCode(StatusCodes.Status503ServiceUnavailable,
+                new ApiErrorResponse
+                (
+                    new ApiErrorBody
+                    (
+                        "Starting",
+                        "503"
+                    )
+                )
+            );
         }
 
         return Ok(new { status = "ready" });
