@@ -22,6 +22,12 @@ public class ChatController : ControllerBase
     [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
     public async Task<ActionResult<ChatCompletionResponse>> CompleteAsync([FromBody] ChatCompletionRequest request, CancellationToken cancellationToken = default)
     {
+        if (request.Messages is null || request.Messages.Count == 0)
+            return BadRequest();
+
+        else if (!_chatService.IsReady)
+            return StatusCode(StatusCodes.Status503ServiceUnavailable, new { status = "starting" });
+
         return Ok();
     }
 
@@ -32,7 +38,7 @@ public class ChatController : ControllerBase
     {
         if (!_chatService.IsReady)
         {
-            return StatusCode(503, new { status = "starting" });
+            return StatusCode(StatusCodes.Status503ServiceUnavailable, new { status = "starting" });
         }
 
         return Ok(new { status = "ready" });
